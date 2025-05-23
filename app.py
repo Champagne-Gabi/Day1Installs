@@ -9,7 +9,7 @@ st.subheader("Ask anything about Day 1 install – alignments, assignments, or a
 # Load OpenAI API key from Streamlit secrets
 client = openai.OpenAI(api_key=st.secrets["openai"]["api_key"])
 
-# Define example chunks from playbook (will be expanded from real content)
+# Define expanded chunks from playbook
 playbook_chunks = [
     {
         "title": "Cleaver LT",
@@ -30,6 +30,26 @@ playbook_chunks = [
         "title": "Empty Checks",
         "tags": ["empty", "adjustments"],
         "content": "If the offense motions to Empty, the check is 'PLAY OUT'. Pressure is canceled. STAR becomes curl/flat or hook. MOF safety rotates."
+    },
+    {
+        "title": "Shake LT",
+        "tags": ["pressure", "boundary", "fire zone"],
+        "content": "'Shake LT' is a pressure from the boundary side. STAR typically drops while the pressure comes from inside. The DL slants away from pressure. Fire zone principles apply with 3 under, 3 deep behind it."
+    },
+    {
+        "title": "MULE Check",
+        "tags": ["motion", "formation", "adjustment"],
+        "content": "'MULE' is a check used when motion brings a TE or WR into a tight split near the box. It triggers a shift from nickel to a base alignment. STAR may bump out and safety spins down based on call."
+    },
+    {
+        "title": "Red Zone Fire Zone",
+        "tags": ["red zone", "pressure", "coverage"],
+        "content": "In the red zone, fire zone pressures tighten. STAR or boundary corner may become primary flat defenders. Deep zones condense, and reads become quicker. Communication is critical pre-snap."
+    },
+    {
+        "title": "3x1 Checks",
+        "tags": ["coverage", "adjustments", "3x1"],
+        "content": "Against 3x1 formations, safeties communicate and decide on MOF integrity. Typical check involves pushing coverage or rotating a safety down. STAR may play wall 3 or seam-curl-flat depending on coverage."
     }
 ]
 
@@ -67,3 +87,4 @@ if user_question:
         st.success(response.choices[0].message.content)
     except Exception as e:
         st.error(f"Something went wrong: {e}")
+
