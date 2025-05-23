@@ -1,6 +1,5 @@
 import streamlit as st
 import openai
-import os
 
 st.set_page_config(page_title="Day 1 Playbook Assistant", layout="wide")
 
@@ -8,7 +7,7 @@ st.title("🏈 Day 1 Defensive Playbook Assistant")
 st.subheader("Ask anything about Day 1 install – alignments, assignments, or adjustments")
 
 # Load OpenAI API key from Streamlit secrets
-openai.api_key = st.secrets["openai"]["api_key"]
+client = openai.OpenAI(api_key=st.secrets["openai"]["api_key"])
 
 # Define example chunks from playbook (will be expanded from real content)
 playbook_chunks = [
@@ -56,14 +55,17 @@ if user_question:
     {user_question}
     """
 
-    # GPT completion
+    # GPT completion (new API format)
     try:
-        response = openai.ChatCompletion.create(
+        response = client.chat.completions.create(
             model="gpt-4",
-            messages=[{"role": "system", "content": "You are a defensive football coach assistant."},
-                     {"role": "user", "content": prompt}]
+            messages=[
+                {"role": "system", "content": "You are a defensive football coach assistant."},
+                {"role": "user", "content": prompt}
+            ]
         )
-        st.success(response.choices[0].message["content"])
+        st.success(response.choices[0].message.content)
     except Exception as e:
         st.error(f"Something went wrong: {e}")
+
 
