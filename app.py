@@ -78,6 +78,30 @@ elif mode == "Quiz Me":
             "options": ["Slant into pressure", "Drop into coverage", "Hold gap", "Slant away from pressure"],
             "answer": "Slant away from pressure",
             "position": "Defensive End"
+        },
+        {
+            "q": "What does STAR do when there's man motion?",
+            "options": ["Check Lock", "Play Top Hat", "Call Slingshot", "Blitz"],
+            "answer": "Call Slingshot",
+            "position": "STAR"
+        },
+        {
+            "q": "How does the defense handle Empty checks?",
+            "options": ["Blitz STAR", "Play Out", "Push coverage", "Drop DE"],
+            "answer": "Play Out",
+            "position": "Mike LB"
+        },
+        {
+            "q": "What’s the role of the boundary corner in Trap?",
+            "options": ["Deep third", "Inside leverage", "Flat zone", "Man-to-man"],
+            "answer": "Flat zone",
+            "position": "Cornerback"
+        },
+        {
+            "q": "In 3x1, what might the STAR be responsible for?",
+            "options": ["Wall #2", "Middle third", "Seam-curl-flat", "Blitz"],
+            "answer": "Seam-curl-flat",
+            "position": "STAR"
         }
     ]
 
