@@ -60,30 +60,56 @@ if mode == "Ask the Assistant":
             st.error(f"Something went wrong: {e}")
 
 elif mode == "Quiz Me":
-    questions = [
+    all_questions = [
         {
             "q": "Where does the pressure come from in Cleaver LT?",
             "options": ["TE side", "Opposite TE", "Middle", "Boundary"],
-            "answer": "Opposite TE"
+            "answer": "Opposite TE",
+            "position": "STAR"
         },
         {
             "q": "In Scissors, what happens if #3 is fast?",
             "options": ["Check Slingshot", "Check Thin", "Play Out", "Trap"],
-            "answer": "Check Thin"
+            "answer": "Check Thin",
+            "position": "Free Safety"
         },
         {
             "q": "What’s the DL's job in Shake RT?",
             "options": ["Slant into pressure", "Drop into coverage", "Hold gap", "Slant away from pressure"],
-            "answer": "Slant away from pressure"
+            "answer": "Slant away from pressure",
+            "position": "Defensive End"
         }
     ]
 
-    q = random.choice(questions)
-    st.markdown(f"**{q['q']}**")
-    choice = st.radio("Choose one:", q["options"], key=q['q'])
+    filtered_questions = [q for q in all_questions if q["position"] == selected_position or selected_position == "General"]
 
-    if st.button("Submit Answer"):
-        if choice == q["answer"]:
-            st.success("✅ Correct!")
-        else:
-            st.error(f"❌ Incorrect — the correct answer was: {q['answer']}")
+    if 'quiz_index' not in st.session_state:
+        st.session_state.quiz_index = 0
+        st.session_state.correct = None
+        st.session_state.score = 0
+        st.session_state.total = 0
+
+    if filtered_questions:
+        q = filtered_questions[st.session_state.quiz_index % len(filtered_questions)]
+        st.markdown(f"**{q['q']}**")
+        choice = st.radio("Choose one:", q["options"], key=q['q'])
+
+        if st.button("Submit Answer"):
+            st.session_state.correct = (choice == q["answer"])
+            st.session_state.total += 1
+            if st.session_state.correct:
+                st.session_state.score += 1
+
+        if st.session_state.correct is not None:
+            if st.session_state.correct:
+                st.success("✅ Correct!")
+            else:
+                st.error(f"❌ Incorrect — the correct answer was: {q['answer']}")
+
+            if st.button("Next Question"):
+                st.session_state.quiz_index += 1
+                st.session_state.correct = None
+
+        st.info(f"Score: {st.session_state.score} / {st.session_state.total}")
+    else:
+        st.warning("No questions available for this position.")
