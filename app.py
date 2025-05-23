@@ -147,8 +147,10 @@ elif mode == "Quiz Me":
                 st.session_state.quiz_index += 1
                 st.session_state.correct = None
                 st.session_state.submitted = False
+                st.experimental_rerun()
 
         st.info(f"Score: {st.session_state.score} / {st.session_state.total}")
     else:
         st.warning("No questions available for this position.")
+
 
