@@ -65,43 +65,50 @@ elif mode == "Quiz Me":
             "q": "Where does the pressure come from in Cleaver LT?",
             "options": ["TE side", "Opposite TE", "Middle", "Boundary"],
             "answer": "Opposite TE",
-            "position": "STAR"
+            "position": "STAR",
+            "image": None
         },
         {
             "q": "In Scissors, what happens if #3 is fast?",
             "options": ["Check Slingshot", "Check Thin", "Play Out", "Trap"],
             "answer": "Check Thin",
-            "position": "Free Safety"
+            "position": "Free Safety",
+            "image": None
         },
         {
             "q": "What’s the DL's job in Shake RT?",
             "options": ["Slant into pressure", "Drop into coverage", "Hold gap", "Slant away from pressure"],
             "answer": "Slant away from pressure",
-            "position": "Defensive End"
+            "position": "Defensive End",
+            "image": None
         },
         {
             "q": "What does STAR do when there's man motion?",
             "options": ["Check Lock", "Play Top Hat", "Call Slingshot", "Blitz"],
             "answer": "Call Slingshot",
-            "position": "STAR"
+            "position": "STAR",
+            "image": None
         },
         {
             "q": "How does the defense handle Empty checks?",
             "options": ["Blitz STAR", "Play Out", "Push coverage", "Drop DE"],
             "answer": "Play Out",
-            "position": "Mike LB"
+            "position": "Mike LB",
+            "image": None
         },
         {
             "q": "What’s the role of the boundary corner in Trap?",
             "options": ["Deep third", "Inside leverage", "Flat zone", "Man-to-man"],
             "answer": "Flat zone",
-            "position": "Cornerback"
+            "position": "Cornerback",
+            "image": None
         },
         {
             "q": "In 3x1, what might the STAR be responsible for?",
             "options": ["Wall #2", "Middle third", "Seam-curl-flat", "Blitz"],
             "answer": "Seam-curl-flat",
-            "position": "STAR"
+            "position": "STAR",
+            "image": None
         }
     ]
 
@@ -112,19 +119,24 @@ elif mode == "Quiz Me":
         st.session_state.correct = None
         st.session_state.score = 0
         st.session_state.total = 0
+        st.session_state.submitted = False
 
     if filtered_questions:
         q = filtered_questions[st.session_state.quiz_index % len(filtered_questions)]
         st.markdown(f"**{q['q']}**")
+        if q["image"]:
+            st.image(q["image"], width=500)
         choice = st.radio("Choose one:", q["options"], key=q['q'])
 
-        if st.button("Submit Answer"):
-            st.session_state.correct = (choice == q["answer"])
-            st.session_state.total += 1
-            if st.session_state.correct:
-                st.session_state.score += 1
+        if not st.session_state.submitted:
+            if st.button("Submit Answer"):
+                st.session_state.correct = (choice == q["answer"])
+                st.session_state.total += 1
+                if st.session_state.correct:
+                    st.session_state.score += 1
+                st.session_state.submitted = True
 
-        if st.session_state.correct is not None:
+        if st.session_state.submitted:
             if st.session_state.correct:
                 st.success("✅ Correct!")
             else:
@@ -133,6 +145,7 @@ elif mode == "Quiz Me":
             if st.button("Next Question"):
                 st.session_state.quiz_index += 1
                 st.session_state.correct = None
+                st.session_state.submitted = False
 
         st.info(f"Score: {st.session_state.score} / {st.session_state.total}")
     else:
