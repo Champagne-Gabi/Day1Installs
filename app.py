@@ -58,7 +58,7 @@ if user_question:
     # GPT completion (new API format)
     try:
         response = client.chat.completions.create(
-            model="gpt-4",
+            model="gpt-3.5-turbo",
             messages=[
                 {"role": "system", "content": "You are a defensive football coach assistant."},
                 {"role": "user", "content": prompt}
@@ -67,5 +67,3 @@ if user_question:
         st.success(response.choices[0].message.content)
     except Exception as e:
         st.error(f"Something went wrong: {e}")
-
-
