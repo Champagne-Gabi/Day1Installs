@@ -120,21 +120,22 @@ elif mode == "Quiz Me":
         st.session_state.score = 0
         st.session_state.total = 0
         st.session_state.submitted = False
+        st.session_state.answered_questions = []
 
     if filtered_questions:
         q = filtered_questions[st.session_state.quiz_index % len(filtered_questions)]
         st.markdown(f"**{q['q']}**")
         if q["image"]:
             st.image(q["image"], width=500)
-        choice = st.radio("Choose one:", q["options"], key=q['q'])
+        choice = st.radio("Choose one:", q["options"], key=st.session_state.quiz_index)
 
-        if not st.session_state.submitted:
-            if st.button("Submit Answer"):
-                st.session_state.correct = (choice == q["answer"])
-                st.session_state.total += 1
-                if st.session_state.correct:
-                    st.session_state.score += 1
-                st.session_state.submitted = True
+        if not st.session_state.submitted and st.button("Submit Answer"):
+            st.session_state.correct = (choice == q["answer"])
+            st.session_state.total += 1
+            if st.session_state.correct:
+                st.session_state.score += 1
+            st.session_state.submitted = True
+            st.session_state.answered_questions.append({"question": q["q"], "selected": choice, "correct": q["answer"]})
 
         if st.session_state.submitted:
             if st.session_state.correct:
@@ -142,7 +143,7 @@ elif mode == "Quiz Me":
             else:
                 st.error(f"❌ Incorrect — the correct answer was: {q['answer']}")
 
-            if st.button("Next Question"):
+            if st.button("Next Question", key="next"):
                 st.session_state.quiz_index += 1
                 st.session_state.correct = None
                 st.session_state.submitted = False
@@ -150,3 +151,4 @@ elif mode == "Quiz Me":
         st.info(f"Score: {st.session_state.score} / {st.session_state.total}")
     else:
         st.warning("No questions available for this position.")
+
