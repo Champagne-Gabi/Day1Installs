@@ -1,60 +1,69 @@
 import streamlit as st
-import random
+import openai
+import os
 
 st.set_page_config(page_title="Day 1 Playbook Assistant", layout="wide")
 
-st.title("🏈 Day 1 Playbook Assistant")
-st.subheader("Ask about your install, assignments, or quiz yourself")
+st.title("🏈 Day 1 Defensive Playbook Assistant")
+st.subheader("Ask anything about Day 1 install – alignments, assignments, or adjustments")
 
-# Sample knowledge base (simplified for demo)
-knowledge_base = {
-    "cleaver lt": "'Cleaver LT' is a nickel pressure call. LT means the pressure is coming from the left — opposite the tight end. DL does not drop; it's a fire zone structure.",
-    "scissors": "'Scissors' is a one-word fire zone pressure from a Mint front. DL stays in, STAR often pressures. If #3 is fast, play THIN.",
-    "star motion": "If STAR is in motion, check for SLINGSHOT adjustment. Realign based on motion rules and formation shifts.",
-    "empty": "Empty checks you out of most pressures. 'PLAY OUT' = drop into coverage, STAR becomes curl/flat or hook defender."
-}
+# Load OpenAI API key from Streamlit secrets
+openai.api_key = st.secrets["openai"]["api_key"]
 
-# Chat interface
-user_question = st.text_input("🗣️ Ask me anything from the Day 1 install:")
+# Define example chunks from playbook (will be expanded from real content)
+playbook_chunks = [
+    {
+        "title": "Cleaver LT",
+        "tags": ["pressure", "nickel", "fire zone"],
+        "content": "'Cleaver LT' is a Day 1 nickel pressure. Pressure comes from the left (opposite the TE). DL does not drop. STAR blitzes off edge. Fire zone coverage behind it."
+    },
+    {
+        "title": "Scissors",
+        "tags": ["mint front", "fire zone"],
+        "content": "'Scissors' is a one-word fire zone pressure from a Mint front. No DL drops. STAR blitzes. If #3 is fast, check THIN. DBs rotate into fire zone shell with curl/flat, hook 3, and MOF."
+    },
+    {
+        "title": "STAR Motion Rules",
+        "tags": ["motion", "adjustments"],
+        "content": "If STAR gets man motion, we check 'SLINGSHOT'. STAR tracks the motion across. In stacks, use FIRE CALLS like Tophat, Lock, or Push."
+    },
+    {
+        "title": "Empty Checks",
+        "tags": ["empty", "adjustments"],
+        "content": "If the offense motions to Empty, the check is 'PLAY OUT'. Pressure is canceled. STAR becomes curl/flat or hook. MOF safety rotates."
+    }
+]
+
+# Simple retrieval + GPT wrapper
+user_question = st.text_input("🗣️ Ask a question about the install (e.g. 'What does STAR do in Scissors?')")
 
 if user_question:
-    key = user_question.lower().strip()
-    matched = None
-    for k in knowledge_base:
-        if k in key:
-            matched = k
-            break
-    if matched:
-        st.success(knowledge_base[matched])
-    else:
-        st.warning("I don't know that one yet — ask about another Day 1 term like 'Cleaver LT' or 'Scissors'.")
+    # Find relevant chunks
+    matches = []
+    for chunk in playbook_chunks:
+        if any(word in user_question.lower() for word in chunk['title'].lower().split() + chunk['tags']):
+            matches.append(chunk["content"])
 
-# Quiz mode
-with st.expander("🎯 Quiz Yourself", expanded=False):
-    questions = [
-        {
-            "q": "Where does pressure come from in Cleaver LT?",
-            "options": ["TE side", "Opposite TE", "Middle", "Off-ball LB"],
-            "answer": "Opposite TE"
-        },
-        {
-            "q": "What is the STAR's role in Scissors?",
-            "options": ["Deep 1/3", "Blitz", "Play MOF", "Drop to weak hook"],
-            "answer": "Blitz"
-        },
-        {
-            "q": "What’s the empty check in most pressure calls?",
-            "options": ["Check Flood", "Stay Blitz", "Play Out", "Banjo"],
-            "answer": "Play Out"
-        }
-    ]
+    if not matches:
+        matches = [chunk["content"] for chunk in playbook_chunks[:2]]  # fallback
 
-    q = random.choice(questions)
-    st.markdown(f"**{q['q']}**")
-    choice = st.radio("Choose one:", q["options"], key=q['q'])
+    # Build prompt
+    prompt = f"""
+    You are a defensive football coach helping players understand a Day 1 playbook install.
+    Based on the following notes:
+    {chr(10).join(matches)}
+    Answer this player question clearly and concisely:
+    {user_question}
+    """
 
-    if st.button("Submit Answer"):
-        if choice == q["answer"]:
-            st.success("✅ Correct!")
-        else:
-            st.error(f"❌ Not quite — the correct answer was: {q['answer']}")
+    # GPT completion
+    try:
+        response = openai.ChatCompletion.create(
+            model="gpt-4",
+            messages=[{"role": "system", "content": "You are a defensive football coach assistant."},
+                     {"role": "user", "content": prompt}]
+        )
+        st.success(response.choices[0].message["content"])
+    except Exception as e:
+        st.error(f"Something went wrong: {e}")
+
